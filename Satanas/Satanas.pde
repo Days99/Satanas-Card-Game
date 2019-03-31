@@ -4,41 +4,30 @@ import java.io.*;
 
 ArrayList<Card> deck;
 Sort sort;
-File data;
 
 void setup() {
 
   fullScreen();
   deck = new ArrayList<Card>();
   sort = new Sort();
-  selectFolder("Process data: ", "fileSelected");
+  File file = new File(dataPath("C:\\Users\\diogo\\Documents\\Processing\\Satanas-Card-Game\\Satanas\\data"));
+  processFile(file);
   noLoop();
 }
 
 void draw() {
-   if (data != null)
    for (Card c : deck) {
        c.display();
    }
 }
 
-void fileSelected(File selected) {
-  if (selected == null)
-    println("Shut");
-  else {
-    processFile(selected);
-    data = selected;
-  }
-}
-
 void processFile(File selection) {
   String[] images = selection.list();
   ArrayList<String> cards = new ArrayList<String>();
-  for (String s : images) {
+  for (String s : images) 
     if (!s.contains("back"))
       cards.add(s);
-  }
-
+      
   ProcessDeck(cards);
 }
 
@@ -68,7 +57,7 @@ void ProcessDeck(ArrayList<String> cardsFile) {
 }
 
 void displayDeck() {
-  for (Card c : deck) {
+    for (Card c : deck) {
     if(c.getType() == CardType.Club)
     c.setPosition(new PVector(50 + c.getActualValue() * 10, 20 * c.getActualValue()));
     else if(c.getType() == CardType.Heart)
