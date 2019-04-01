@@ -83,6 +83,7 @@ void choseCards() {
         players.get(0).setPlantedCards(cards);
         updateHandPosition(players.get(0).getHand());
         updateVisuals = false;
+        played= true;
         state = 1;
   }
 }
