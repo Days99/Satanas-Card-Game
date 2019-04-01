@@ -5,18 +5,21 @@ import java.io.*;
 ArrayList<Card> deck;
 ArrayList<Player> players;
 ArrayList<Card> selected;
+ArrayList<Card> table;
 Sort sort;
 int state = 0;
 boolean updateVisuals;
+boolean played;
 
 void setup() {
 
-  fullScreen(P2D);
+  fullScreen();
   background(0);
   frameRate(60);
   deck = new ArrayList<Card>();
   players = new ArrayList<Player>();
   selected = new ArrayList<Card>();
+  table = new ArrayList<Card>();
   sort = new Sort();
   //TODO get Absolute Path 
   File file = new File(dataPath("C:\\Users\\diogo\\Documents\\Processing\\Satanas-Card-Game\\Satanas\\data"));
@@ -35,7 +38,7 @@ void draw() {
       break;
     }
   }
-  //   println(frameRate);
+ //    println(frameRate);
 }
 
 void startGame() {
@@ -46,8 +49,12 @@ void startGame() {
     PVector cardPos = c.getPosition();
     PVector size = c.getSize();
     if (mouseX > cardPos.x && mouseX < cardPos.x + size.x && mouseY > cardPos.y && mouseY < cardPos.y + size.y) {
-      if (mousePressed && !selected.contains(c))
-        selected.add(c);
+      if (mousePressed && !played){
+      c.setTransparency(100);
+      played = true;
+      playCard(c);
+      break;
+      }
     }
   }
 }
@@ -74,6 +81,7 @@ void choseCards() {
         players.get(0).getHand().remove(selected.get(i));
         }
         players.get(0).setPlantedCards(cards);
+        updateHandPosition(players.get(0).getHand());
         updateVisuals = false;
         state = 1;
   }
@@ -131,14 +139,35 @@ void createPlayer(ArrayList<Card> cards, int numbP) {
       cards.remove(i);
     } else if (i > 2 && i < 9) {
       hand.add(cards.get(i));
-      cards.get(i).setPosition(new PVector((width/2 - 420) + (hand.size() * 120), height -500));
-      cards.get(i).setDrawn(true);
       cards.remove(i);
     } else {   
+      updateHandPosition(hand);
       players.add(new Player(hand, lastCards));
       break;
     }
   }
+}
+
+void updateHandPosition(ArrayList<Card> newHand)
+{
+  for(int i = 0; i < newHand.size(); i++){
+      newHand.get(i).setPosition(new PVector((width/2 - 420) + (i * 120), height -500));
+      newHand.get(i).setDrawn(true);
+  }
+}
+
+void playCard(Card c){
+  table.add(c);
+  c.setPosition(new PVector(width/2, height/2));
+  players.get(0).getHand().remove(c);
+  if(players.get(0).getHand().size() < 3){
+  players.get(0).getHand().add(deck.get(0));
+  deck.get(0).setDrawn(true);
+  deck.remove(deck.get(0));
+  }
+  updateHandPosition(players.get(0).getHand());
+  updateVisuals = false;
+  
 }
 void updateCardsStart() {
   background(0);
@@ -152,13 +181,20 @@ void updateCardsStart() {
 
 void updateCardsGame(){
     background(0);
+    Collections.sort(players.get(0).getHand(),sort);
     for (Card c : players.get(0).getHand())
     c.display();
     for (Card c : players.get(0).getLastCards())
     c.display();
     for (Card c : players.get(0).getPlantedCards())
     c.display();
-    
+    if(table.size() > 0)
+    for (Card c : table)
+    c.display();  
     updateVisuals = true;
+}
 
+void mouseReleased(){
+  if(played)
+  played = false;
 }
